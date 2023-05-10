@@ -12,14 +12,6 @@ namespace WebApplication1WebHook
 {
     public class DynamicsFacade
     {
-
-        /// <summary>
-        /// Sends HTTP POST request to create new customer with name and mail.
-        /// This code is not correct, but is a starter code that can be leaned on
-        /// </summary>
-        /// <param name="name">CustomerName</param>
-        /// <param name="email">CustomerMail</param>
-        /// <returns></returns>
         public async Task CreateCustomer(String name, String email)
         {
             //This user and pass is your login for BC365
@@ -33,8 +25,6 @@ namespace WebApplication1WebHook
 
             parameter p = new parameter { name = name, email = email };
             String jsonData = JsonConvert.SerializeObject(p);
-
-            //JSON Object
             var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
 
             //Change this one to your container name
@@ -45,18 +35,13 @@ namespace WebApplication1WebHook
             var procedureName = "ProcessWebhookPayload";
 
             HttpResponseMessage response = await client.PostAsync("http://"+ nameOfContainer + ":7048/BC/ODataV4/"+ serviceName + "_"+ procedureName + "?company=CRONUS%20Danmark%20A%2FS", content);
-
             string data = "";
 
             if (response.IsSuccessStatusCode)
             {
                 data = await response.Content.ReadAsStringAsync();
             }
-            else
-            {
-                System.Diagnostics.Debug.WriteLine("Error");
-            }
-
+            else{System.Diagnostics.Debug.WriteLine("Error");}
             System.Diagnostics.Debug.WriteLine("Result: " + data);
         }
 
@@ -89,7 +74,7 @@ namespace WebApplication1WebHook
             //Name of the procedure you wish to call based on your Service Name
             var procedureName = "ProcessWebhookPayload";
 
-            HttpResponseMessage response = await client.PostAsync("http://"+ nameOfContainer + ":7048/BC/ODataV4/"+ serviceName + "_"+ procedureName + "?company=CRONUS%20Danmark%20A%2FS", content);
+            HttpResponseMessage response = await client.PostAsync("http://"+ nameOfContainer + ":7047/BC/ODataV4/"+ serviceName + "_"+ procedureName + "?company=CRONUS%20Danmark%20A%2FS", content);
 
             string data = "";
 
@@ -112,17 +97,16 @@ namespace WebApplication1WebHook
         public string name { get; set; }
         public string email { get; set; }
     }
-
-
-
     class Customer
     {
         [JsonProperty("CustomerName")]
+        public int CustomerID { get; set; }
         public String CustomerName { get; set; }
         [JsonProperty("CustomerLastName")]
         public String CustomerLastName { get; set; }
+        [JsonProperty("CustomerMail")]
+        public String CustomerMail { get; set; }
     }
-
     class Payload
     {
         [JsonProperty("TubberwareCustomer")]

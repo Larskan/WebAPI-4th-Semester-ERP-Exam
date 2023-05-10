@@ -36,7 +36,7 @@ namespace WebApplication1WebHook
 
                 if (topic.ToLower().Equals("customer.created"))
                 {
-                    //call WS oder created
+                    //call Web Service Order created
                     DynamicsFacade dynamicsFacade = new DynamicsFacade();
                     //dynamicsFacade.CreateCustomer(name, email);
                     dynamicsFacade.InsertData(name, email);
