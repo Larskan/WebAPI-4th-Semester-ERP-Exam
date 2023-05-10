@@ -13,33 +13,38 @@ namespace WebApplication1WebHook
     public class DynamicsFacade
     {
 
+        /// <summary>
+        /// Sends HTTP POST request to create new customer with name and mail.
+        /// This code is not correct, but is a starter code that can be leaned on
+        /// </summary>
+        /// <param name="name">CustomerName</param>
+        /// <param name="email">CustomerMail</param>
+        /// <returns></returns>
         public async Task CreateCustomer(String name, String email)
         {
+            //This user and pass is your login for BC365
             var _token = $"admin:Password";
-            var _tokenBase64 = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(_token));
+            var _tokenBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(_token));
 
             HttpClient client = new HttpClient();
-            client.DefaultRequestHeaders.Accept.Add(
-                new MediaTypeWithQualityHeaderValue("application/json"));
-            //client.DefaultRequestHeaders.Authorization =  new AuthenticationHeaderValue("Basic", "YWRtaW46UGFzc3dvcmQ=");
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            //Token to authenticate request, to be added to HTTP request header
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", _tokenBase64);
-
-            //var parameter = new {  x = 10,  y = 20 };
-            //String jsonData = JsonConvert.SerializeObject(parameter);            
-            //String jsonData = "{\"x\": \"" + 50 +
-            //                    "\", \"y\": \"" + 40 + "\" }";
 
             parameter p = new parameter { name = name, email = email };
             String jsonData = JsonConvert.SerializeObject(p);
 
+            //JSON Object
             var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
 
+            //Change this one to your container name
+            var nameOfContainer = "bc-container";
+            //Name of the service attached to your Web Service(The name you gave your Codeunit in BC365 Web Service)
+            var serviceName = "WooNewCustomer";
+            //Name of the procedure you wish to call based on your Service Name
+            var procedureName = "ProcessWebhookPayload";
 
-            //HttpResponseMessage response = await client.PostAsync("http://172.19.16.193:7048/BC/ODataV4/Letter_Sum?company=CRONUS%20Danmark%20A%2FS", content);
-            //HttpResponseMessage response = await client.PostAsync("http://172.19.25.212:7048/BC/ODataV4/Letter_Sum?Company('CRONUS%20Danmark%20A%2FS')", content);
-            HttpResponseMessage response = await client.PostAsync("http://bc-container:7048/BC/ODataV4/wordpress_createcustomerws?company=CRONUS%20Danmark%20A%2FS", content);
-
-
+            HttpResponseMessage response = await client.PostAsync("http://"+ nameOfContainer + ":7048/BC/ODataV4/"+ serviceName + "_"+ procedureName + "?company=CRONUS%20Danmark%20A%2FS", content);
 
             string data = "";
 
@@ -60,11 +65,10 @@ namespace WebApplication1WebHook
         {
             //l/p
             var _token = $"admin:Password";
-            var _tokenBase64 = System.Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(_token));
+            var _tokenBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(_token));
 
             HttpClient client = new HttpClient();
-            client.DefaultRequestHeaders.Accept.Add(
-                new MediaTypeWithQualityHeaderValue("application/json"));
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", _tokenBase64);
 
             var parameter = new Customer { CustomerName = pname, CustomerLastName = pemail };
@@ -74,11 +78,18 @@ namespace WebApplication1WebHook
             var payloadJSON = JsonConvert.SerializeObject(payload);
 
 
-            var inputData = new StringContent(payloadJSON, Encoding.Unicode, "application/json");
+            var content = new StringContent(payloadJSON, Encoding.Unicode, "application/json");
 
-            System.Diagnostics.Debug.WriteLine("json: " + await inputData.ReadAsStringAsync());
+            System.Diagnostics.Debug.WriteLine("json: " + await content.ReadAsStringAsync());
 
-            HttpResponseMessage response = await client.PostAsync("http://bc-container:7048/BC/ODataV4/WooNewCustomer_ProcessWebhookPayload?company=CRONUS%20Danmark%20A%2FS", inputData);
+            //Change this one to your container name
+            var nameOfContainer = "bc-container";
+            //Name of the service attached to your Web Service(The name you gave your Codeunit in BC365 Web Service)
+            var serviceName = "WooNewCustomer";
+            //Name of the procedure you wish to call based on your Service Name
+            var procedureName = "ProcessWebhookPayload";
+
+            HttpResponseMessage response = await client.PostAsync("http://"+ nameOfContainer + ":7048/BC/ODataV4/"+ serviceName + "_"+ procedureName + "?company=CRONUS%20Danmark%20A%2FS", content);
 
             string data = "";
 
@@ -98,10 +109,8 @@ namespace WebApplication1WebHook
 
     class parameter
     {
-
         public string name { get; set; }
         public string email { get; set; }
-
     }
 
 
@@ -110,7 +119,6 @@ namespace WebApplication1WebHook
     {
         [JsonProperty("CustomerName")]
         public String CustomerName { get; set; }
-
         [JsonProperty("CustomerLastName")]
         public String CustomerLastName { get; set; }
     }
