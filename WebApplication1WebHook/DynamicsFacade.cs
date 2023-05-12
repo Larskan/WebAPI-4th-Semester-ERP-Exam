@@ -7,15 +7,58 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using Newtonsoft.Json.Linq;
 
 namespace WebApplication1WebHook
 {
     public class DynamicsFacade
     {
-        public async Task CreateCustomer(String name, String email)
+        //User and pass for you login for BC365
+        private string Login = $"admin:Password";
+
+        //The IP for docker
+        private string dockerIP = "172.25.161.237:7048";
+
+        //The name of container, if it doesnt work, use dockerIP
+        private string dockerContainer = "bc-container";
+
+        public async Task CreateSalesOrder(JObject jObject)
         {
-            //This user and pass is your login for BC365
-            var _token = $"admin:Password";
+            var _token = Login;
+            var _tokenBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(_token));
+
+            HttpClient client = new HttpClient();
+
+            client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            //Token to authenticate request, to be added to HTTP request header
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", _tokenBase64);
+
+            Payload payload = new Payload() { payloadinfo = jObject.ToString() };
+            String jsonData = JsonConvert.SerializeObject(payload);
+            System.Diagnostics.Debug.WriteLine(jsonData);
+            var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
+
+            //Name of the service attached to your Web Service(The name you gave your Codeunit in BC365 Web Service)
+            var serviceName = "WooNewCustomer";
+            //Name of the procedure you wish to call based on your Service Name
+            var procedureName = "ProcessCreateSalesOrder";
+
+            HttpResponseMessage response = await client.PostAsync("http://"+ this.dockerIP + "/BC/ODataV4/"+ serviceName + "_"+ procedureName + "?company=CRONUS%20Danmark%20A%2FS", content);
+            string data = "";
+
+            if (response.IsSuccessStatusCode)
+            {
+                data = await response.Content.ReadAsStringAsync();
+            }
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("Error");
+            }
+            System.Diagnostics.Debug.WriteLine("Result: " + data);
+        }
+        public async Task UpdateSalesOrder(JObject jObject)
+        {
+            var _token = Login;
             var _tokenBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(_token));
 
             HttpClient client = new HttpClient();
@@ -23,93 +66,70 @@ namespace WebApplication1WebHook
             //Token to authenticate request, to be added to HTTP request header
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", _tokenBase64);
 
-            parameter p = new parameter { name = name, email = email };
-            String jsonData = JsonConvert.SerializeObject(p);
+            Payload payload = new Payload() { payloadinfo = jObject.ToString() };
+            String jsonData = JsonConvert.SerializeObject(payload);
+            System.Diagnostics.Debug.WriteLine(jsonData);
+
             var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
 
-            //Change this one to your container name
-            var nameOfContainer = "bc-container";
             //Name of the service attached to your Web Service(The name you gave your Codeunit in BC365 Web Service)
             var serviceName = "WooNewCustomer";
             //Name of the procedure you wish to call based on your Service Name
-            var procedureName = "ProcessWebhookPayload";
+            var procedureName = "ProcessUpdateOrder";
 
-            HttpResponseMessage response = await client.PostAsync("http://"+ nameOfContainer + ":7048/BC/ODataV4/"+ serviceName + "_"+ procedureName + "?company=CRONUS%20Danmark%20A%2FS", content);
+            HttpResponseMessage response = await client.PostAsync("http://" + this.dockerIP + "/BC/ODataV4/" + serviceName + "_" + procedureName + "?company=CRONUS%20Danmark%20A%2FS", content);
             string data = "";
 
             if (response.IsSuccessStatusCode)
             {
                 data = await response.Content.ReadAsStringAsync();
             }
-            else{System.Diagnostics.Debug.WriteLine("Error");}
+            else
+            {
+                System.Diagnostics.Debug.WriteLine("Error");
+            }
             System.Diagnostics.Debug.WriteLine("Result: " + data);
         }
-
-
-        public async Task InsertData(String pname, String pemail)
+        public async Task CreateCustomer(JObject jObject)
         {
-            //l/p
-            var _token = $"admin:Password";
+            var _token = Login;
             var _tokenBase64 = Convert.ToBase64String(Encoding.UTF8.GetBytes(_token));
 
             HttpClient client = new HttpClient();
             client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+            //Token to authenticate request, to be added to HTTP request header
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Basic", _tokenBase64);
 
-            var parameter = new Customer { CustomerName = pname, CustomerLastName = pemail };
-            String jsonData = JsonConvert.SerializeObject(parameter);
+            Payload payload = new Payload() { payloadinfo = jObject.ToString() };
+            String jsonData = JsonConvert.SerializeObject(payload);
+            System.Diagnostics.Debug.WriteLine(jsonData);
 
-            var payload = new Payload { CustomerName = jsonData };
-            var payloadJSON = JsonConvert.SerializeObject(payload);
+            var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
 
-
-            var content = new StringContent(payloadJSON, Encoding.Unicode, "application/json");
-
-            System.Diagnostics.Debug.WriteLine("json: " + await content.ReadAsStringAsync());
-
-            //Change this one to your container name
-            var nameOfContainer = "bc-container";
             //Name of the service attached to your Web Service(The name you gave your Codeunit in BC365 Web Service)
             var serviceName = "WooNewCustomer";
             //Name of the procedure you wish to call based on your Service Name
             var procedureName = "ProcessWebhookPayload";
 
-            HttpResponseMessage response = await client.PostAsync("http://"+ nameOfContainer + ":7047/BC/ODataV4/"+ serviceName + "_"+ procedureName + "?company=CRONUS%20Danmark%20A%2FS", content);
-
+            HttpResponseMessage response = await client.PostAsync("http://" + this.dockerIP + "/BC/ODataV4/" + serviceName + "_" + procedureName + "?company=CRONUS%20Danmark%20A%2FS", content);
             string data = "";
 
             if (response.IsSuccessStatusCode)
             {
                 data = await response.Content.ReadAsStringAsync();
-
-                System.Diagnostics.Debug.WriteLine("Result: " + data);
             }
             else
             {
-                System.Diagnostics.Debug.WriteLine("Error: " + response.ReasonPhrase);
+                System.Diagnostics.Debug.WriteLine("Error");
             }
+            System.Diagnostics.Debug.WriteLine("Result: " + data);
         }
 
     }
 
-    class parameter
-    {
-        public string name { get; set; }
-        public string email { get; set; }
-    }
-    class Customer
-    {
-        [JsonProperty("CustomerName")]
-        public int CustomerID { get; set; }
-        public String CustomerName { get; set; }
-        [JsonProperty("CustomerLastName")]
-        public String CustomerLastName { get; set; }
-        [JsonProperty("CustomerMail")]
-        public String CustomerMail { get; set; }
-    }
     class Payload
     {
-        [JsonProperty("TubberwareCustomer")]
-        public String CustomerName { get; set; }
+        [JsonProperty("Payload")]
+        public string payloadinfo { get; set; }
     }
 }
