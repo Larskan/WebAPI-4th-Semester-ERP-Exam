@@ -31,30 +31,30 @@ namespace WebApplication1WebHook
                 String eventType = context.Request.Headers.GetValues("x-wc-webhook-event").First();
 
                 //order.updated for testing
-                if (topic.ToLower().Equals("order.updated"))
+                if (topic.ToLower().Equals("order.created"))
                 {
                     //call Web Service Order created
                     DynamicsFacade dynamicsFacade = new DynamicsFacade();
-                    dynamicsFacade.CreateCustomer(data); //change back to order update after testing
-                    System.Diagnostics.Debug.WriteLine("Order Updated");
-                }
-                else if (topic.ToLower().Equals("order.created"))
-                {
-                    DynamicsFacade dynamicsFacade = new DynamicsFacade();
-                    dynamicsFacade.CreateSalesOrder(data);
-                    System.Diagnostics.Debug.WriteLine("Order Created");
+                    dynamicsFacade.CreateSalesOrder(data); 
+                    System.Diagnostics.Debug.WriteLine("Sales Order Created");
                 }
                 else if (topic.ToLower().Equals("customer.created"))
                 {
                     DynamicsFacade dynamicsFacade = new DynamicsFacade();
                     dynamicsFacade.CreateCustomer(data);
                     System.Diagnostics.Debug.WriteLine("Customer Created");
+                }
+                else if (topic.ToLower().Equals("order.updated"))
+                {
+                    DynamicsFacade dynamicsFacade = new DynamicsFacade();
+                    dynamicsFacade.UpdateSalesOrder(data);
+                    System.Diagnostics.Debug.WriteLine("Order Updated");
 
                 }
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine("Error");
+                System.Diagnostics.Debug.WriteLine("Error in webhook");
             }
 
             System.Diagnostics.Debug.WriteLine("Time: " + DateTime.Now.TimeOfDay.ToString());

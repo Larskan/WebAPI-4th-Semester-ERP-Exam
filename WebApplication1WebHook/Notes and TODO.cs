@@ -14,8 +14,6 @@ namespace WebApplication1WebHook
          * Woo -> Api -> Dynamics
          * Webhook request bliver sendt, API tager webhooken og sender videre til Dynamics
          * 
-         * TODO: Lav et link til Dynamics og Commerce
-         * TODO: Lav tests, dummydata er ok til start tests
          */
     }
 }
