@@ -17,7 +17,7 @@ namespace WebApplication1WebHook
         private string Login = $"admin:Password";
 
         //The IP for docker
-        private string dockerIP = "172.25.161.237:7048";
+        private string dockerIP = "172.25.161.237:7047";
 
         //The name of container, if it doesnt work, use dockerIP
         private string dockerContainer = "bc-container";
@@ -39,7 +39,7 @@ namespace WebApplication1WebHook
             var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
 
             //Name of the service attached to your Web Service(The name you gave your Codeunit in BC365 Web Service)
-            var serviceName = "WooNewCustomer";
+            var serviceName = "WooIn";
             //Name of the procedure you wish to call based on your Service Name
             var procedureName = "ProcessCreateSalesOrder";
 
@@ -107,9 +107,9 @@ namespace WebApplication1WebHook
             var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
 
             //Name of the service attached to your Web Service(The name you gave your Codeunit in BC365 Web Service)
-            var serviceName = "WooNewCustomer";
+            var serviceName = "WooIn";
             //Name of the procedure you wish to call based on your Service Name
-            var procedureName = "ProcessWebhookPayload";
+            var procedureName = "ProcessCreateCustomer";
 
             HttpResponseMessage response = await client.PostAsync("http://" + this.dockerIP + "/BC/ODataV4/" + serviceName + "_" + procedureName + "?company=CRONUS%20Danmark%20A%2FS", content);
             string data = "";
@@ -117,12 +117,22 @@ namespace WebApplication1WebHook
             if (response.IsSuccessStatusCode)
             {
                 data = await response.Content.ReadAsStringAsync();
+                System.Diagnostics.Debug.WriteLine("Response: "+response);
             }
             else
             {
                 System.Diagnostics.Debug.WriteLine("Error");
             }
             System.Diagnostics.Debug.WriteLine("Result: " + data);
+        }
+
+        public async Task CreateItem(JObject jObject)
+        {
+
+        }
+        public async Task UpdateItemStock(JObject jObject)
+        {
+
         }
 
     }
