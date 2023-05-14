@@ -17,23 +17,25 @@ namespace WebApplication1WebHook
             this.Receiver = "genericjson";
         }
 
-        //This task is to handle the webhook from woocommerce depending on what kind it is
-        //And then launch the correct and matching task from dynamics
+        /// <summary>
+        /// This task is to handle the webhook from woocommerce depending on what kind it is
+        /// And then launch the correct and matching task from dynamics
+        /// </summary>
+        /// <param name="receiver"></param>
+        /// <param name="context">Context of Webhook</param>
+        /// <returns></returns>
         public override Task ExecuteAsync(string receiver, WebHookHandlerContext context)
         {
             // Get JSON from WebHook
             JObject data = context.GetDataOrDefault<JObject>();
-            Console.WriteLine("json: " + data);
 
             try
             {
                 String topic = context.Request.Headers.GetValues("X-WC-Webhook-Topic").First();
                 String eventType = context.Request.Headers.GetValues("x-wc-webhook-event").First();
 
-                //order.updated for testing
                 if (topic.ToLower().Equals("order.created"))
                 {
-                    //call Web Service Order created
                     DynamicsFacade dynamicsFacade = new DynamicsFacade();
                     dynamicsFacade.CreateSalesOrder(data); 
                     System.Diagnostics.Debug.WriteLine("Sales Order Created");
@@ -49,8 +51,6 @@ namespace WebApplication1WebHook
             {
                 System.Diagnostics.Debug.WriteLine("Error in webhook");
             }
-
-            System.Diagnostics.Debug.WriteLine("Time: " + DateTime.Now.TimeOfDay.ToString());
             return Task.FromResult(HttpStatusCode.OK);
         }
     }

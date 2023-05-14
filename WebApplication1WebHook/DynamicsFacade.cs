@@ -1,12 +1,9 @@
 ﻿using Newtonsoft.Json;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http.Headers;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using System.Web;
 using Newtonsoft.Json.Linq;
 
 namespace WebApplication1WebHook
@@ -31,16 +28,15 @@ namespace WebApplication1WebHook
 
             Payload payload = new Payload() { payload = jObject.ToString() };
             String jsonData = JsonConvert.SerializeObject(payload);
-            System.Diagnostics.Debug.WriteLine("JsonData: "+jsonData);
             var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
 
-            var serviceName = "FromWoo"; //Name of the service attached to your Web Service(The name you gave your Codeunit in BC365 Web Service)
-            var procedureName = "ProcessCreateSalesOrder"; //Name of the procedure you wish to call based on your Service Name
-
-            HttpResponseMessage response = await client.PostAsync(
-                "http://"+ this.dockerIP + "/BC/ODataV4/"+ serviceName + "_"+ procedureName + "?company=CRONUS%20Danmark%20A%2FS", content);
+            //Name of the service attached to your Web Service(The name you gave your Codeunit in BC365 Web Service)
+            var serviceName = "FromWoo"; 
+            //Name of the procedure you wish to call based on your Service Name
+            var procedureName = "ProcessCreateSalesOrder"; 
+            HttpResponseMessage response = await client.PostAsync("http://" + this.dockerIP + "/BC/ODataV4/"+ serviceName + "_" + procedureName + "?company=CRONUS%20Danmark%20A%2FS", content);
+            
             string data = "";
-
             if (response.IsSuccessStatusCode)
             {
                 data = await response.Content.ReadAsStringAsync();
@@ -62,13 +58,12 @@ namespace WebApplication1WebHook
 
             Payload payload = new Payload() { payload = jObject.ToString() };
             String jsonData = JsonConvert.SerializeObject(payload);
-            System.Diagnostics.Debug.WriteLine("jsonData: "+jsonData);
 
             var content = new StringContent(jsonData, Encoding.UTF8, "application/json");
-            System.Diagnostics.Debug.WriteLine("StringContent: " + content);
 
             //Name of the service attached to your Web Service(The name you gave your Codeunit in BC365 Web Service)
-            var serviceName = "FromWoo"; 
+            var serviceName = "FromWoo";
+            //Name of the procedure you wish to call based on your Service Name
             var procedureName = "ProcessCreateCustomer"; 
             HttpResponseMessage response = await client.PostAsync(
                 "http://" + this.dockerIP + "/BC/ODataV4/" + serviceName + "_" + procedureName + "?company=CRONUS%20Danmark%20A%2FS", content);
