@@ -47,8 +47,8 @@ namespace WebApplication1WebHook
                 else if (topic.ToLower().Equals("order.updated"))
                 {
                     DynamicsFacade dynamicsFacade = new DynamicsFacade();
-                    dynamicsFacade.UpdateSalesOrder(data);
-                    System.Diagnostics.Debug.WriteLine("Order Updated");
+                    dynamicsFacade.CreateSalesOrder(data);
+                    System.Diagnostics.Debug.WriteLine("Order Updated/Created");
 
                 }
             }
