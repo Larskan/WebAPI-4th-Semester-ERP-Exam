@@ -46,11 +46,13 @@ namespace WebApplication1WebHook
                     dynamicsFacade.CreateCustomer(data);
                     System.Diagnostics.Debug.WriteLine("Customer Created");
                 }
+
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine("Error in webhook");
             }
+            System.Diagnostics.Debug.WriteLine("Time: " + DateTime.Now.TimeOfDay.ToString());
             return Task.FromResult(HttpStatusCode.OK);
         }
     }
